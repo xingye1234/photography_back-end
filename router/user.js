@@ -9,16 +9,16 @@ const multer = require("multer");
 
 //获取全部用户
 
-router.get('/', (req, res)=> {
-  queryData(`select * from user`, (err, result)=>{
-    if(result.length > 0){
+router.get("/", (req, res) => {
+  queryData(`select * from user`, (err, result) => {
+    if (result.length > 0) {
       res.send({
-        code:200,
-        data:result
-      })
+        code: 200,
+        data: result,
+      });
     }
-  })
-})
+  });
+});
 
 //用户登录
 router.post("/login", (req, res) => {
@@ -202,6 +202,30 @@ router.get("/production/:id", (req, res) => {
       });
     }
   });
+});
+
+//获取用户数量
+router.get("/get_person/:address", (req, res) => {
+  const address = req.params.address;
+
+  queryData(
+    `select * from user where address like '${address}%'`,
+    (err, result) => {
+      // console.log(err, result);
+      if (result.length > 0) {
+        const userAddress = result.map(item => item.address)
+        res.send({
+          code: 200,
+          data: userAddress,
+        });
+      } else {
+        res.send({
+          code: 404,
+          data: 0,
+        });
+      }
+    }
+  );
 });
 
 module.exports = {
