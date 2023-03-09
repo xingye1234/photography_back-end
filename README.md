@@ -5,4 +5,4 @@
   # npm install mysql
 
 # 运行命令
-  # nodemon index.js
+  # npm start
