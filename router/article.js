@@ -48,19 +48,21 @@ router.post("/upload", upload.single("file"), (req, res, next) => {
 //用户发表内容
 router.post("/pubcontent", (req, res, next) => {
   const { user_id, title, desc, username, avatar, address } = req.body;
+  const good = 0;
+  // console.log(username);
   //拼接图片路径
   let imgUrl = `http://localhost:9527/images/${fullFileName}`;
 
   queryData(
-    `INSERT INTO article(user_id,title,description,username,avatar,address,img) VALUES(?,?,?,?,?,?,?)`,
+    `INSERT INTO article(user_id,title,description,username,avatar,address,img, good) VALUES(?,?,?,?,?,?,?,?)`,
     (err, result) => {
       queryData(
         `UPDATE user SET avatar = ? WHERE user_id = ?`,
         (err, result) => {},
         [avatar, user_id]
       );
-      // console.log(err);
-      if (result.affectedRows > 0) {
+      // console.log(err, result);
+      if (!err) {
         addImg(fullFileName, filepath);
         res.send({
           code: 200,
@@ -69,7 +71,7 @@ router.post("/pubcontent", (req, res, next) => {
         });
       }
     },
-    [user_id, title, desc, username, avatar, address, imgUrl]
+    [user_id, title, desc, username, avatar, address, imgUrl, good]
   );
 });
 

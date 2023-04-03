@@ -8,10 +8,9 @@ fs = require("fs");
 const multer = require("multer");
 
 //获取全部用户
-
 router.get("/", (req, res) => {
   queryData(`select * from user`, (err, result) => {
-    if (result.length > 0) {
+    if (!err) {
       res.send({
         code: 200,
         data: result,
@@ -47,11 +46,12 @@ router.post("/login", (req, res) => {
 //用户注册
 router.post("/register", (req, res) => {
   //取出前端传送的数据
-  const name = req.body.name;
-  const password = req.body.password;
+  const { username, phone } = req.body;
+  // console.log(username, phone);
   queryData(
-    `select * from user where username = '${name}' and password = '${password}'`,
+    `select * from user where username = '${username}' and phone = '${phone}'`,
     (err, result) => {
+      // console.log(err, result);
       if (result.length !== 0) {
         res.send({
           msg: "该名称已注册！",
@@ -59,20 +59,22 @@ router.post("/register", (req, res) => {
         });
       } else {
         //取出前端传送的数据
-
         const { username, password, address, email, phone } = req.body;
+        let followee_count = 0,
+          follower_count = 0,
+          article_count = 0;
         queryData(
-          `INSERT INTO user(username,password,address,phone, email) VALUES(?,?,?,?,?)`,
+          `INSERT INTO user(username,password,address,phone, email, followee_count, follower_count, article_count) VALUES(?,?,?,?,?,?,?,?)`,
           (err, result) => {
-            // console.log(err);
-            if (result.affectedRows > 0) {
+            // console.log(err, result);
+            if (!err) {
               res.send({
                 code: 200,
                 msg: "注册成功！",
               });
             }
           },
-          [username, password, address, email, phone]
+          [username, password, address, phone, email, followee_count, follower_count, article_count]
         );
       }
     }
@@ -83,7 +85,7 @@ router.post("/register", (req, res) => {
 router.get("/userInfo/:id", (req, res) => {
   const id = req.params.id;
   queryData(`select * from user where user_id=${id}`, (err, result) => {
-    if (result.length !== 0) {
+    if (!err) {
       res.send({
         result,
         code: 200,
@@ -132,10 +134,8 @@ router.post("/editInfo", (req, res) => {
 const upload = multer({ dest: __dirname + "/public/avatar" });
 router.post("/avatar", upload.single("file"), (req, res) => {
   const file = req.file;
-  // console.log(file);
   const { id } = req.body;
-  // console.log(id);
-  // console.log(file);
+
   const { mimetype, filename } = file;
   let tmpType = mimetype.split("/")[1];
   date = Date.now().toString();
@@ -147,8 +147,7 @@ router.post("/avatar", upload.single("file"), (req, res) => {
   queryData(
     `UPDATE user SET avatar = ? WHERE user_id = ?`,
     (err, result) => {
-      // console.log(err, result);
-      if (result.affectedRows > 0) {
+      if (!err) {
         //将文件读入public/images文件夹
         fs.writeFileSync(
           `public/avatar/${fullFileName}`,
@@ -203,7 +202,6 @@ router.get("/production/:id", (req, res) => {
     }
   });
 });
-
 //获取用户数量
 router.get("/get_person/:address", (req, res) => {
   const address = req.params.address;
@@ -213,7 +211,7 @@ router.get("/get_person/:address", (req, res) => {
     (err, result) => {
       // console.log(err, result);
       if (result.length > 0) {
-        const userAddress = result.map(item => item.address)
+        const userAddress = result.map((item) => item.address);
         res.send({
           code: 200,
           data: userAddress,

@@ -6,7 +6,7 @@ const queryData = (sql, callback, values) => {
     host: "127.0.0.1",
     user: "root",
     password: "123456",
-    database: "photography",
+    database: "photography2",
   });
   //连接数据库
   db.connect((err) => {

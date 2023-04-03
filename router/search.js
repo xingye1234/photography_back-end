@@ -15,10 +15,6 @@ router.get("/searchValue/:value", (req, res) => {
           code: 200,
           data: result,
         });
-      }else{
-        res.send({
-          code:404
-        })
       }
     }
   );

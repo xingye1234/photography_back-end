@@ -32,11 +32,12 @@ router.get("/userInfo/:id", (req, res) => {
 //用户点赞
 router.get("/userLike/:id", (req, res) => {
   const { id } = req.params;
+  // console.log(id);
   queryData(
     `UPDATE article SET good = good+1 WHERE article_id = ?`,
     (err, result) => {
       // console.log(err, result);
-      if (result.affectedRows > 0) {
+      if (!err) {
         res.send({
           code: 200,
           msg: "点赞成功",
@@ -55,7 +56,7 @@ router.post("/pluscomment", (req, res) => {
     `INSERT INTO comment(article_id,user_id,content, avatar, username) VALUES(?,?,?,?,?)`,
     (err, result) => {
       // console.log(err, result);
-      if (result.affectedRows > 0) {
+      if (!err) {
         res.send({
           code: 200,
           msg: "评论成功",
@@ -94,7 +95,7 @@ router.post("/follow", (req, res) => {
     `insert into user_follow(from_id,to_id,username,avatar) values(?,?,?,?)`,
     (err, result) => {
       // console.log(err, result);
-      if (result.affectedRows > 0) {
+      if (!err) {
         queryData(
           `update user set followee_count = followee_count+1 WHERE user_id = ?`,
           () => {},
@@ -120,73 +121,15 @@ router.post("/follow", (req, res) => {
 router.get("/user_follow/:id", (req, res) => {
   const id = req.params.id;
   // console.log(id);
-
   queryData(`select * from user_follow where from_id=${id}`, (err, result) => {
     // console.log(err, result);
-    // console.log(result);
     if (!err) {
       res.send({
         code: 200,
         data: result,
       });
-    } else {
-      res.send({
-        code: 201,
-        msg: "暂无数据",
-      });
     }
   });
-});
-
-//用户取消关注
-router.post("/unfollow", (req, res) => {
-  const { to_id, from_id } = req.body;
-  // console.log(id);
-
-  queryData(`delete from user_follow where from_id=${from_id}`, (err, result) => {
-    if (!err) {
-      queryData(
-        `update user set followee_count = followee_count-1 WHERE user_id = ?`,
-        (err, result) => {
-          // console.log(err, result);
-          if (!err) {
-            res.send({
-              code: 200,
-              msg: "取消关注成功",
-            });
-          } else {
-            res.send({
-              code: 201,
-              msg: "网络错误",
-            });
-          }
-        },
-        [from_id]
-      );
-      queryData(
-        `update user set follower_count = follower_count-1 WHERE user_id = ?`,
-        (err, result) => {},
-        [to_id]
-      );
-    }
-  });
-});
-
-//用户查看关注
-router.get("/readfollow/:id", (req, res) => {
-  const id = req.params.id;
-  queryData(
-    `select * from user_follow where from_id = ${id}`,
-    (err, result) => {
-      // console.log(err, result);
-      if (!err) {
-        res.send({
-          code: 200,
-          data: result,
-        });
-      }
-    }
-  );
 });
 
 //获取用户作品
@@ -194,16 +137,11 @@ router.get("/userProduct/:id", (req, res) => {
   const id = req.params.id;
   // console.log(id);
   queryData(`select * from article where user_id=${id}`, (err, result) => {
-    // console.log(result, err);
-    if (!err) {
+    // console.log(result);
+    if (result.length > 0) {
       res.send({
         code: 200,
         data: result.length,
-      });
-    } else {
-      res.send({
-        code: 201,
-        msg: "网络错误",
       });
     }
   });
