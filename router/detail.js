@@ -149,11 +149,18 @@ router.get("/userProduct/:id", (req, res) => {
 
 //用户举报
 router.post("/report", (req, res) => {
-  const { reportable_id, user_id, type, description } = req.body;
+  const {
+    reportable_id,
+    article_id,
+    type,
+    description,
+    username,
+    article_name,
+  } = req.body;
   // console.log(reportable_id, user_id, type, description);
 
   queryData(
-    `insert into report(reportable_id, reportable_type, user_id, reason) values(?,?,?,?)`,
+    `insert into report(reportable_id, reportable_type, article_id, reason, username, article_name) values(?,?,?,?,?,?)`,
     (err, result) => {
       // console.log(err, result);
       if (!err) {
@@ -163,8 +170,23 @@ router.post("/report", (req, res) => {
         });
       }
     },
-    [reportable_id, type, user_id, description]
+    [reportable_id, type, article_id, description, username, article_name]
   );
+});
+
+//获取用户关注
+router.get("/readfollow/:id", (req, res) => {
+  const id = req.params.id;
+  // console.log(id);
+  queryData(`select * from user_follow where from_id=${id}`, (err, result) => {
+    // console.log(result, err);
+    if (!err) {
+      res.send({
+        code: 200,
+        data: result,
+      });
+    }
+  });
 });
 
 module.exports = {

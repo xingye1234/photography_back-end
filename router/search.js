@@ -24,7 +24,7 @@ router.get("/searchValue/:value", (req, res) => {
 router.get("/report", (req, res) => {
   queryData(`select * from report`, (err, result) => {
     // console.log(err, result);
-    if (result.length > 0) {
+    if (!err) {
       res.send({
         code: 200,
         data: result,
@@ -36,8 +36,10 @@ router.get("/report", (req, res) => {
 //删除举报信息
 router.post("/removeReport", (req, res) => {
   const id = req.body.id;
-  queryData(`delete from report where id = ${id}`, (err, result) => {
-    if (result.affectedRows > 0) {
+  console.log(id);
+  queryData(`delete from report where report_id = ${id}`, (err, result) => {
+    // console.log(err, result);
+    if (!err) {
       return res.send({
         code: 200,
         msg: "删除成功",
@@ -59,10 +61,10 @@ router.get("/searchArticle/:value", (req, res) => {
             code: 200,
             data: result,
           });
-        }else{
+        } else {
           res.send({
             code: 201,
-            msg:'查询无结果'
+            msg: "查询无结果",
           });
         }
       }
@@ -77,10 +79,10 @@ router.get("/searchArticle/:value", (req, res) => {
             code: 200,
             data: result,
           });
-        }else{
+        } else {
           res.send({
             code: 201,
-            msg:'查询无结果'
+            msg: "查询无结果",
           });
         }
       }
@@ -92,23 +94,20 @@ router.get("/searchArticle/:value", (req, res) => {
 router.get("/searchUser/:value", (req, res) => {
   const value = req.params.value;
   // console.log(value);
-    queryData(
-      `select * from user where username='${value}'`,
-      (err, result) => {
-        // console.log(err, result);
-        if (result.length > 0) {
-          res.send({
-            code: 200,
-            data: result,
-          });
-        }else{
-          res.send({
-            code:201,
-            msg:'查无结果'
-          })
-        }
-      }
-    );
+  queryData(`select * from user where username='${value}'`, (err, result) => {
+    // console.log(err, result);
+    if (result.length > 0) {
+      res.send({
+        code: 200,
+        data: result,
+      });
+    } else {
+      res.send({
+        code: 201,
+        msg: "查无结果",
+      });
+    }
+  });
 });
 module.exports = {
   router,
